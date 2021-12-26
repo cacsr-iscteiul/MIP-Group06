@@ -1,0 +1,38 @@
+{
+    "fields": [
+      {
+        "fieldName": "faturaName",
+        "fieldType": "String"
+      },
+      {
+        "fieldName": "faturaDate",
+        "fieldType": "Date"
+      },
+      {
+        "fieldName": "faturaId",
+        "fieldType": "Long"
+      },
+      {
+        "fieldName": "ClienteId",
+        "fieldType": "Long"
+      },
+      {
+        "fieldName": "precoId",
+        "fieldType": "Long"
+      },
+      {
+        "fieldName": "restauranteAdress",
+        "fieldType": "String"
+      }
+    ],
+    "relationships": [],
+    "entityType": "domain",
+    "service": "serviceClass",
+    "dto": "mapstruct",
+    "jpaMetamodelFiltering": false,
+    "readOnly": true,
+    "pagination": "no",
+    "name": "TravelPlan",
+    "changelogDate": "20210401000001",
+    "skipFakeData": true
+  }

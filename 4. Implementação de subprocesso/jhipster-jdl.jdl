@@ -1,0 +1,11 @@
+entity Fatura {
+	faturaName String
+    faturaDate Date
+    faturaId Long
+    clienteId Long
+    precoId Long
+    restauranteAdress String
+    
+    
+}
+

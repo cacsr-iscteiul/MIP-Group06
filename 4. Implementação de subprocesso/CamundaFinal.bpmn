@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_114bjaz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="RestaurantePlanProcess" name="Restaurante Plan Process" isExecutable="true">
+    <bpmn:serviceTask id="VerificacaoDaRefeicao" name="Verificacao da refeicao" implementation="##WebService" camunda:delegateExpression="${VerificarRefeicaoDelegate}">
+      <bpmn:incoming>Flow_12r2z1z</bpmn:incoming>
+      <bpmn:outgoing>Flow_04c9pu3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="EnviarPedidoDeConfirmacaoParaEfetuarPagamento" name="Enviar Pedido de confirmacao para efetuar pagamento" implementation="##WebService" camunda:delegateExpression="${ConfirmacaoPedidoDelegate}">
+      <bpmn:incoming>Flow_Sim1</bpmn:incoming>
+      <bpmn:incoming>Flow_Sim</bpmn:incoming>
+      <bpmn:outgoing>Flow_06n0naw</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:sendTask id="EnviarPropostaAoCliente" name="Enviar proposta ao cliente" implementation="##WebService" camunda:delegateExpression="${propostaRRefeicaoDelegate}">
+      <bpmn:incoming>Flow_0bydpd1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0dsucde</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:userTask id="CriarRefeicaoAlternativa" name="Criar refeicao alternativa" implementation="##WebService">
+      <bpmn:incoming>Flow_Nao1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bydpd1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="ReceberComprovativoDePagamento" name="Receber Comprovativo de pagamento" implementation="##WebService">
+      <bpmn:incoming>Flow_06n0naw</bpmn:incoming>
+      <bpmn:outgoing>Flow_0dp4i8l</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="RegistarPedidoNaPlataforma" name="Registar pedido na plataforma" implementation="##WebService">
+      <bpmn:incoming>Flow_0jnkplp</bpmn:incoming>
+      <bpmn:outgoing>Flow_12r2z1z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="ReceberPedidoRefeicao" name="Receber pedido refeicao" implementation="##WebService">
+      <bpmn:incoming>Flow_1rj1pj7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jnkplp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_XOR" name="possivel de realizar  ?" gatewayDirection="Diverging">
+      <bpmn:incoming>Flow_04c9pu3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sim1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Nao1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:startEvent id="Event_13rw5e7" name="">
+      <bpmn:outgoing>Flow_1rj1pj7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GatewayXOR" name="Cliente aceitou&#10; a proposta" gatewayDirection="Diverging">
+      <bpmn:incoming>Flow_0dsucde</bpmn:incoming>
+      <bpmn:outgoing>Flow_Sim</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Nao</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="PedidoCancelado" name="Pedido Cancelado">
+      <bpmn:incoming>Flow_121fw4t</bpmn:incoming>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0djgxcm" errorRef="Error_02abtxg" />
+    </bpmn:endEvent>
+    <bpmn:sendTask id="Activity_1b035c8" name="Enviar fatura ao cliente " implementation="##WebService" camunda:delegateExpression="${faturaRestauranteDelegate}}">
+      <bpmn:incoming>Flow_1r3zd3g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ralox8</bpmn:outgoing>
+      <bpmn:ioSpecification>
+        <bpmn:dataOutput />
+        <bpmn:inputSet name="DefaultInputSet" />
+        <bpmn:outputSet name="DefaultOutputSet" />
+      </bpmn:ioSpecification>
+    </bpmn:sendTask>
+    <bpmn:userTask id="FazerPedidoCozinha" name="Fazer pedido cozinha" implementation="##WebService">
+      <bpmn:incoming>Flow_0dp4i8l</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r3zd3g</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="End" name="End">
+      <bpmn:incoming>Flow_0ralox8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Time_Event" name="15 min" attachedToRef="ReceberComprovativoDePagamento">
+      <bpmn:outgoing>Flow_121fw4t</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1b5w0xk">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT1M</bpmn:timeCycle>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_12r2z1z" name="" sourceRef="RegistarPedidoNaPlataforma" targetRef="VerificacaoDaRefeicao" />
+    <bpmn:sequenceFlow id="Flow_04c9pu3" name="" sourceRef="VerificacaoDaRefeicao" targetRef="Gateway_XOR" />
+    <bpmn:sequenceFlow id="Flow_Sim1" name="Sim" sourceRef="Gateway_XOR" targetRef="EnviarPedidoDeConfirmacaoParaEfetuarPagamento">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${is}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Sim" name="Sim" sourceRef="GatewayXOR" targetRef="EnviarPedidoDeConfirmacaoParaEfetuarPagamento">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${exist}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_06n0naw" name="" sourceRef="EnviarPedidoDeConfirmacaoParaEfetuarPagamento" targetRef="ReceberComprovativoDePagamento" />
+    <bpmn:sequenceFlow id="Flow_0bydpd1" name="" sourceRef="CriarRefeicaoAlternativa" targetRef="EnviarPropostaAoCliente" />
+    <bpmn:sequenceFlow id="Flow_0dsucde" name="" sourceRef="EnviarPropostaAoCliente" targetRef="GatewayXOR" />
+    <bpmn:sequenceFlow id="Flow_Nao1" name="Nao" sourceRef="Gateway_XOR" targetRef="CriarRefeicaoAlternativa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!is}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0dp4i8l" name="" sourceRef="ReceberComprovativoDePagamento" targetRef="FazerPedidoCozinha" />
+    <bpmn:sequenceFlow id="Flow_0jnkplp" name="" sourceRef="ReceberPedidoRefeicao" targetRef="RegistarPedidoNaPlataforma" />
+    <bpmn:sequenceFlow id="Flow_1rj1pj7" name="" sourceRef="Event_13rw5e7" targetRef="ReceberPedidoRefeicao" />
+    <bpmn:sequenceFlow id="Flow_Nao" name="Nao" sourceRef="GatewayXOR" targetRef="CancelaPedido">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!exist}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_121fw4t" name="" sourceRef="Time_Event" targetRef="PedidoCancelado" />
+    <bpmn:sequenceFlow id="Flow_1r3zd3g" name="" sourceRef="FazerPedidoCozinha" targetRef="Activity_1b035c8" />
+    <bpmn:sequenceFlow id="Flow_0ralox8" name="" sourceRef="Activity_1b035c8" targetRef="End" />
+    <bpmn:endEvent id="CancelaPedido" name="Cancela Pedido">
+      <bpmn:incoming>Flow_Nao</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:error id="Error_02abtxg" name="Cancelar" errorCode="Nao Pagamento" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="RestaurantePlanProcess">
+      <bpmndi:BPMNEdge id="Flow_12r2z1z_di" bpmnElement="Flow_12r2z1z">
+        <di:waypoint x="475" y="130" />
+        <di:waypoint x="520" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04c9pu3_di" bpmnElement="Flow_04c9pu3">
+        <di:waypoint x="620" y="130" />
+        <di:waypoint x="659" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01axx7e_di" bpmnElement="Flow_Sim1">
+        <di:waypoint x="699" y="130" />
+        <di:waypoint x="1146" y="130" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="914" y="112" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o20t2p_di" bpmnElement="Flow_Sim">
+        <di:waypoint x="1101" y="242" />
+        <di:waypoint x="1203" y="242" />
+        <di:waypoint x="1203" y="178" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1143" y="224" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06n0naw_di" bpmnElement="Flow_06n0naw">
+        <di:waypoint x="1260" y="130" />
+        <di:waypoint x="1335" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bydpd1_di" bpmnElement="Flow_0bydpd1">
+        <di:waypoint x="840" y="241" />
+        <di:waypoint x="885" y="241" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dsucde_di" bpmnElement="Flow_0dsucde">
+        <di:waypoint x="985" y="241" />
+        <di:waypoint x="1061" y="242" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fsxiwb_di" bpmnElement="Flow_Nao1">
+        <di:waypoint x="679" y="150" />
+        <di:waypoint x="679" y="241" />
+        <di:waypoint x="740" y="241" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="684" y="193" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dp4i8l_di" bpmnElement="Flow_0dp4i8l">
+        <di:waypoint x="1435" y="130" />
+        <di:waypoint x="1509" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jnkplp_di" bpmnElement="Flow_0jnkplp">
+        <di:waypoint x="320" y="130" />
+        <di:waypoint x="375" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rj1pj7_di" bpmnElement="Flow_1rj1pj7">
+        <di:waypoint x="183" y="130" />
+        <di:waypoint x="220" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r4nc3g_di" bpmnElement="Flow_Nao">
+        <di:waypoint x="1081" y="261" />
+        <di:waypoint x="1081" y="326" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1086" y="291" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_121fw4t_di" bpmnElement="Flow_121fw4t">
+        <di:waypoint x="1429" y="170" />
+        <di:waypoint x="1450" y="170" />
+        <di:waypoint x="1450" y="227" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r3zd3g_di" bpmnElement="Flow_1r3zd3g">
+        <di:waypoint x="1609" y="130" />
+        <di:waypoint x="1684" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ralox8_di" bpmnElement="Flow_0ralox8">
+        <di:waypoint x="1784" y="130" />
+        <di:waypoint x="1872" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1bgurfk_di" bpmnElement="VerificacaoDaRefeicao">
+        <dc:Bounds x="520" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_027msis_di" bpmnElement="EnviarPedidoDeConfirmacaoParaEfetuarPagamento">
+        <dc:Bounds x="1146" y="83" width="115" height="95" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11v51ps_di" bpmnElement="EnviarPropostaAoCliente">
+        <dc:Bounds x="885" y="201" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1t1nzmb_di" bpmnElement="CriarRefeicaoAlternativa">
+        <dc:Bounds x="740" y="201" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1j0nw6i_di" bpmnElement="ReceberComprovativoDePagamento">
+        <dc:Bounds x="1335" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1o686tx_di" bpmnElement="RegistarPedidoNaPlataforma">
+        <dc:Bounds x="375" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jb8sk8_di" bpmnElement="ReceberPedidoRefeicao">
+        <dc:Bounds x="220" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1vc3vef_di" bpmnElement="Gateway_XOR" isMarkerVisible="true">
+        <dc:Bounds x="659" y="110" width="40" height="40" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="654" y="77" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_13rw5e7_di" bpmnElement="Event_13rw5e7">
+        <dc:Bounds x="153" y="115" width="30" height="30" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_14zpajo_di" bpmnElement="GatewayXOR" isMarkerVisible="true">
+        <dc:Bounds x="1061" y="221" width="40" height="40" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1044" y="188" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1hl5m5o_di" bpmnElement="PedidoCancelado">
+        <dc:Bounds x="1436" y="227" width="28" height="28" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1406" y="262" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b035c8_di" bpmnElement="Activity_1b035c8">
+        <dc:Bounds x="1684" y="86" width="100" height="87" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1r1zimu_di" bpmnElement="FazerPedidoCozinha">
+        <dc:Bounds x="1509" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_13ctn40_di" bpmnElement="End">
+        <dc:Bounds x="1872" y="116" width="28" height="28" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1876" y="151" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0b66xza_di" bpmnElement="CancelaPedido">
+        <dc:Bounds x="1067" y="326" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1046" y="373" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0sjp62e_di" bpmnElement="Time_Event">
+        <dc:Bounds x="1399" y="155" width="30" height="30" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1398" y="187" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
